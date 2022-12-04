@@ -6,13 +6,6 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-itertools="0.10.1"
-nom="7.1.0"
-gcd = "2.0.2"
-phf = { version = "0.10.0", features = ["macros"] }
-cgmath = {version = "0.18.0", features = ["swizzle"] }
-derive_more = "0.99.17"
-num-integer = "0.1.44"
-nom-bitvec = "0.2.0"
-bitvec = "0.22.3"
-hex = "0.4.3"
+bit-set = "0.5.3"
+get_inputs = { git = "https://github.com/jemand2001/advent_of_code_inputs" }
+tokio = { version = "1.22.0" }

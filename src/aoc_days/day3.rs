@@ -1,102 +1,63 @@
-use itertools::Itertools;
-use std::{cmp::Ordering, fs};
+use bit_set::BitSet;
 
-fn read_lines(day: i32) -> Vec<String> {
-    fs::read_to_string(format!("inputs/day{}", day))
-        .unwrap()
+pub struct Bag {
+    total: BitSet<u64>,
+    left: BitSet<u64>,
+    right: BitSet<u64>,
+}
+type Input = Vec<Bag>;
+
+fn map_from_char(c: char) -> usize {
+    match c {
+        'a'..='z' => ((c as u32) - ('a' as u32) + 1) as usize,
+        'A'..='Z' => ((c as u32) - ('A' as u32) + 26 + 1) as usize,
+        _ => 0,
+    }
+}
+
+pub fn parse(input: String) -> Result<Input, get_inputs::Error> {
+    Ok(input
         .lines()
-        .map(|s| s.to_owned())
-        .collect::<Vec<String>>()
-}
+        .map(|line| {
+            let mut total: BitSet<u64> = BitSet::default();
+            let mut left: BitSet<u64> = BitSet::default();
+            let mut right: BitSet<u64> = BitSet::default();
 
-fn bit_counts(xs: &Vec<Vec<bool>>) -> Vec<Ordering> {
-    let mut counts = std::iter::repeat(0).take(xs[0].len()).collect_vec();
-    let len = xs.len() as i32;
-    xs.iter().for_each(|xs| {
-        xs.iter()
-            .enumerate()
-            .for_each(|(n, b)| counts[n] += *b as i32)
-    });
-    counts.iter().map(|c| (2 * c).cmp(&len)).collect_vec()
-}
+            line.chars().map(map_from_char).for_each(|n| {
+                total.insert(n);
+            });
 
-#[derive(Clone, Copy)]
-struct Foo(i32);
+            let (l, r) = line.split_at(line.len() / 2);
 
-impl FromIterator<bool> for Foo {
-    fn from_iter<T: IntoIterator<Item = bool>>(iter: T) -> Foo {
-        let mut out = 0;
-        iter.into_iter().for_each(|b| out = (2 * out) + (b as i32));
-        Foo(out)
-    }
-}
+            l.chars().map(map_from_char).for_each(|n| {
+                left.insert(n);
+            });
 
-impl<'a> FromIterator<&'a bool> for Foo {
-    fn from_iter<T: IntoIterator<Item = &'a bool>>(iter: T) -> Foo {
-        let mut out = 0;
-        iter.into_iter().for_each(|b| out = (2 * out) + (*b as i32));
-        Foo(out)
-    }
-}
+            r.chars().map(map_from_char).for_each(|n| {
+                right.insert(n);
+            });
 
-impl From<Foo> for i32 {
-    fn from(Foo(x): Foo) -> i32 {
-        x
-    }
-}
-
-pub fn day() {
-    // let mut counts = [0, 0, 0, 0, 0];
-
-    let lines = read_lines(3);
-    let lines = lines
-        .iter()
-        .map(|x| {
-            x.chars()
-                .map(|c| match c {
-                    '0' => false,
-                    '1' => true,
-                    _ => panic!("Bad Char"),
-                })
-                .collect_vec()
+            Bag { total, left, right }
         })
-        .collect_vec();
-    let len = lines[0].len();
+        .collect())
+}
 
-    let counts = bit_counts(&lines);
+pub fn run(input: Input) -> () {
+    let matching: usize = input
+        .iter()
+        .map(|bag| bag.left.intersection(&bag.right).sum::<usize>())
+        .sum();
+    println!("{}", matching);
 
-    let gamma: i32 = counts.iter().map(|x| x.is_gt()).collect::<Foo>().into();
-    let epsilon: i32 = counts.iter().map(|x| x.is_lt()).collect::<Foo>().into();
+    let id: usize = input
+        .chunks_exact(3)
+        .map(|group| {
+            let mut pool = group[0].total.clone();
+            pool.intersect_with(&group[1].total);
+            pool.intersect_with(&group[2].total);
 
-    let mut oxy = lines.clone();
-    let mut co2 = lines.clone();
-
-    for n in 0..len as usize {
-        let counts = bit_counts(&oxy);
-        oxy = match counts[n] {
-            Ordering::Less => oxy.into_iter().filter(|xs| !xs[n]).collect_vec(),
-            Ordering::Equal => oxy.into_iter().filter(|xs| xs[n]).collect_vec(),
-            Ordering::Greater => oxy.into_iter().filter(|xs| xs[n]).collect_vec(),
-        };
-        if oxy.len() == 1 {
-            break;
-        }
-    }
-
-    for n in 0..len as usize {
-        let counts = bit_counts(&co2);
-        co2 = match counts[n] {
-            Ordering::Less => co2.into_iter().filter(|xs| xs[n]).collect_vec(),
-            Ordering::Equal => co2.into_iter().filter(|xs| !xs[n]).collect_vec(),
-            Ordering::Greater => co2.into_iter().filter(|xs| !xs[n]).collect_vec(),
-        };
-        if co2.len() == 1 {
-            break;
-        }
-    }
-
-    let oxy: i32 = oxy[0].iter().collect::<Foo>().into();
-    let co2: i32 = co2[0].iter().collect::<Foo>().into();
-
-    println!("{} {}", gamma * epsilon, oxy * co2);
+            pool.iter().sum::<usize>()
+        })
+        .sum::<usize>();
+    println!("{}", id);
 }

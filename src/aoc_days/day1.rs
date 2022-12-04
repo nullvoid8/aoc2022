@@ -1,22 +1,21 @@
-use std::fs;
+type Input = Vec<Vec<i32>>;
 
-use itertools::Itertools;
+pub fn parse(input: String) -> Result<Input, get_inputs::Error> {
+    Ok(input
+        .split("\n\n")
+        .map(|elf| {
+            elf.lines()
+                .map(|food| food.parse::<i32>().unwrap())
+                .collect()
+        })
+        .collect())
+}
 
-pub fn day() {
-    let contents = fs::read_to_string("inputs/day1").expect("Couldn't find input");
-    let contents = contents.lines().map(|x| x.parse::<i32>().unwrap());
+pub fn run(input: Input) -> () {
+    let mut nums: Vec<i32> = input.iter().map(|elf| elf.iter().sum()).collect();
 
-    let part1: i32 = contents
-        .clone()
-        .tuple_windows::<(_, _)>()
-        .map(|(x, y)| (x < y) as i32)
-        .sum();
-
-    let part2: i32 = contents
-        .tuple_windows::<(_, _, _)>()
-        .tuple_windows::<(_, _)>()
-        .map(|((x, _, _), (_, _, y))| (x < y) as i32)
-        .sum();
-
-    println!("{} {}", part1, part2);
+    nums.sort();
+    nums.reverse();
+    println!("{}", nums[0]);
+    println!("{}", nums[0..3].iter().sum::<i32>())
 }
