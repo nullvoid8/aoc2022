@@ -8,4 +8,5 @@ edition = "2021"
 [dependencies]
 bit-set = "0.5.3"
 get_inputs = { git = "https://github.com/jemand2001/advent_of_code_inputs" }
+regex = "1.7.0"
 tokio = { version = "1.22.0" }

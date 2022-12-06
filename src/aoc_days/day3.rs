@@ -1,7 +1,6 @@
 use bit_set::BitSet;
 
 pub struct Bag {
-    total: BitSet<u64>,
     left: BitSet<u64>,
     right: BitSet<u64>,
 }
@@ -19,13 +18,8 @@ pub fn parse(input: String) -> Result<Input, get_inputs::Error> {
     Ok(input
         .lines()
         .map(|line| {
-            let mut total: BitSet<u64> = BitSet::default();
             let mut left: BitSet<u64> = BitSet::default();
             let mut right: BitSet<u64> = BitSet::default();
-
-            line.chars().map(map_from_char).for_each(|n| {
-                total.insert(n);
-            });
 
             let (l, r) = line.split_at(line.len() / 2);
 
@@ -37,7 +31,7 @@ pub fn parse(input: String) -> Result<Input, get_inputs::Error> {
                 right.insert(n);
             });
 
-            Bag { total, left, right }
+            Bag { left, right }
         })
         .collect())
 }
@@ -52,9 +46,13 @@ pub fn run(input: Input) -> () {
     let id: usize = input
         .chunks_exact(3)
         .map(|group| {
-            let mut pool = group[0].total.clone();
-            pool.intersect_with(&group[1].total);
-            pool.intersect_with(&group[2].total);
+            let elf0 = group[0].left.union(&group[0].right);
+            let elf1 = group[1].left.union(&group[1].right);
+            let elf2 = group[2].left.union(&group[2].right);
+
+            let mut pool: BitSet<u64> = elf0.collect();
+            pool.intersect_with(&elf1.collect());
+            pool.intersect_with(&elf2.collect());
 
             pool.iter().sum::<usize>()
         })
