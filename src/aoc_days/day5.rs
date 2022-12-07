@@ -1,5 +1,5 @@
+use inpt::{inpt, Inpt};
 use regex::Regex;
-use std::{num::ParseIntError, str::FromStr};
 
 type Input = (Vec<Stack>, Vec<Move>);
 
@@ -36,28 +36,12 @@ fn parse_stacks(s: &str) -> Vec<Stack> {
     stacks
 }
 
-#[derive(Debug)]
+#[derive(Debug, Inpt)]
+#[inpt(regex = r"move (\d+) from (\d+) to (\d+)")]
 pub struct Move {
     count: usize,
     from: usize,
     to: usize,
-}
-
-impl FromStr for Move {
-    type Err = ParseIntError;
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        let s = s.strip_prefix("move ").unwrap();
-        let (count, s) = s.split_once(" ").unwrap();
-        let s = s.strip_prefix("from ").unwrap();
-        let (from, s) = s.split_once(" ").unwrap();
-        let to = s.strip_prefix("to ").unwrap();
-
-        Ok(Move {
-            count: count.parse::<usize>()?,
-            from: from.parse::<usize>()? - 1,
-            to: to.parse::<usize>()? - 1,
-        })
-    }
 }
 
 pub fn parse(input: String) -> Result<Input, get_inputs::Error> {
@@ -65,7 +49,17 @@ pub fn parse(input: String) -> Result<Input, get_inputs::Error> {
 
     Ok((
         parse_stacks(stacks),
-        moves.lines().map(|s| s.parse::<Move>().unwrap()).collect(),
+        moves
+            .lines()
+            .filter(|s| !s.is_empty())
+            .map(|s| match inpt(s).unwrap() {
+                Move { count, from, to } => Move {
+                    count,
+                    from: from - 1,
+                    to: to - 1,
+                },
+            })
+            .collect(),
     ))
 }
 
