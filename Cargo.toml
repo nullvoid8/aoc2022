@@ -9,5 +9,7 @@ edition = "2021"
 bit-set = "0.5.3"
 get_inputs = { git = "https://github.com/jemand2001/advent_of_code_inputs" }
 inpt = "0.1.1"
+itertools = "0.10.5"
 regex = "1.7.0"
 tokio = { version = "1.22.0" }
+trees = "0.4.2"
