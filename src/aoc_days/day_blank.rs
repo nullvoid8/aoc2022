@@ -7,5 +7,5 @@ pub fn parse(input: String) -> Result<Input, get_inputs::Error> {
 }
 
 pub fn run(input: Input) -> () {
-    println!("{}", input);
+    println!("{:?}", input);
 }
