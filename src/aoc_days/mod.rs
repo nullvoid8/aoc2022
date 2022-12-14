@@ -1,6 +1,8 @@
 mod day1;
 mod day10;
 mod day11;
+mod day12;
+mod day13;
 mod day2;
 mod day3;
 mod day4;
@@ -9,7 +11,6 @@ mod day6;
 mod day7;
 mod day8;
 mod day9;
-// mod day12;
 // mod day14;
 // mod day15;
 // mod day16;
@@ -35,6 +36,8 @@ pub fn run_day(day: i32) -> Result<(), get_inputs::Error> {
         9 => run_on_input(day, day9::run, day9::parse),
         10 => run_on_input(day, day10::run, day10::parse),
         11 => run_on_input(day, day11::run, day11::parse),
+        12 => run_on_input(day, day12::run, day12::parse),
+        13 => run_on_input(day, day13::run, day13::parse),
         _ => Ok(()),
     }
 }
