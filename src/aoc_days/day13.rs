@@ -82,7 +82,7 @@ pub fn run(input: Input) -> () {
         .sum();
     println!("{:?}", p1);
 
-    let mut p2 = input
+    let p2 = input
         .into_iter()
         .flat_map(|pair| [pair.0, pair.1])
         .collect_vec();
@@ -90,16 +90,8 @@ pub fn run(input: Input) -> () {
     let two = PacketStream::List(vec![PacketStream::List(vec![PacketStream::Value(2)])]);
     let six = PacketStream::List(vec![PacketStream::List(vec![PacketStream::Value(6)])]);
 
-    p2.push(two.clone());
-    p2.push(six.clone());
+    let two = p2.iter().filter(|&p| p < &two).count() + 1;
+    let six = p2.iter().filter(|&p| p < &six).count() + 1;
 
-    p2.sort();
-
-    let p2: usize = p2
-        .into_iter()
-        .enumerate()
-        .filter_map(|(i, x)| ((x == two) | (x == six)).then_some(i + 1))
-        .product();
-
-    println!("{:?}", p2);
+    println!("{:?}", two * six);
 }
