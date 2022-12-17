@@ -97,63 +97,34 @@ impl Shape {
 }
 
 pub fn run(input: Input) -> () {
-    let mut jets = input.iter().cycle();
+    let mut jets = input.into_iter().cycle();
     let blocks = [Shape::H, Shape::C, Shape::L, Shape::V, Shape::B]
         .into_iter()
         .cycle();
 
-    let mut g: Grid<bool> = Grid::new(1, 9);
+    let mut g: Grid<bool> = Grid::new(0, 7);
     g.fill(true);
     let mut tallest: usize = 0;
 
-    for block in blocks.take(1000000000000) {
+    for block in blocks.take(2022) {
         // require at least tallest + shape.height + 3 rows
-        while g.rows() < tallest + block.height() + 4 {
-            g.push_row(vec![
-                true, false, false, false, false, false, false, false, true,
-            ]);
+        while g.rows() < tallest + block.height() + 3 {
+            g.push_row(vec![false, false, false, false, false, false, false]);
         }
-
-        let mut x: usize = 3;
-        let mut y: usize = tallest + 4;
 
         // let mut h = g.clone();
         // block.stamp(&mut h, x, y);
         // visualise(&h);
 
-        while let Some(&dir) = jets.next() {
-            // print!(
-            //     "{}",
-            //     match dir {
-            //         Direction::L => '<',
-            //         Direction::R => '>',
-            //     }
-            // );
-            match dir {
-                Direction::L => {
-                    if !block.is_blocked(&g, x - 1, y) {
-                        x -= 1;
-                    }
-                }
-                Direction::R => {
-                    if !block.is_blocked(&g, x + 1, y) {
-                        x += 1;
-                    }
-                }
-            }
-
-            if block.is_blocked(&g, x, y - 1) {
-                break;
-            }
-            y -= 1;
-        }
-        // println!();
-        // println!();
-        block.stamp(&mut g, x, y);
-        tallest = max(tallest, y + block.height() - 1);
+        tallest = max(
+            tallest,
+            drop_block(&mut g, &mut jets, block, 2, tallest + 3),
+        );
     }
 
     println!("{}", tallest);
+
+    visualise(&g)
 }
 
 // fn stamp_shape(g: Grid<bool>, (x, y): (usize, usize))
@@ -171,6 +142,37 @@ fn visualise(g: &Grid<bool>) {
     rows.push("-------".to_owned());
 
     println!("{}", rows.join("\n"));
+    println!();
 }
 
-// fn drop(g: &mut Grid<bool>, block: Shape, x: usize, y: usize) -> usize {}
+fn drop_block<I: Iterator<Item = Direction>>(
+    g: &mut Grid<bool>,
+    jets: &mut I,
+    block: Shape,
+    mut x: usize,
+    mut y: usize,
+) -> usize {
+    while let Some(dir) = jets.next() {
+        match dir {
+            Direction::L => {
+                if (x > 0) && !block.is_blocked(&g, x - 1, y) {
+                    x -= 1;
+                }
+            }
+            Direction::R => {
+                if ((x + 1 + block.width()) <= 7) && !block.is_blocked(&g, x + 1, y) {
+                    x += 1;
+                }
+            }
+        }
+
+        if y == 0 || block.is_blocked(&g, x, y - 1) {
+            break;
+        }
+        y -= 1;
+    }
+
+    block.stamp(g, x, y);
+
+    y + block.height()
+}
