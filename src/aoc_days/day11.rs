@@ -1,5 +1,3 @@
-// This file does not get checked by rust as it does not participate in the module tree
-
 use std::collections::VecDeque;
 
 use inpt::{inpt, Inpt};

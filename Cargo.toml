@@ -8,6 +8,7 @@ edition = "2021"
 [dependencies]
 binary-heap-plus = "0.5.0"
 bit-set = "0.5.3"
+enum-map = "2.4.2"
 get_inputs = { git = "https://github.com/jemand2001/advent_of_code_inputs" }
 grid = "0.9.0"
 inpt = "0.1.1"

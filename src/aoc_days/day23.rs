@@ -184,6 +184,7 @@ impl ElfMap {
         }
     }
 
+    #[allow(dead_code)]
     fn print(&self) {
         let (min, max) = self.bounds();
 
